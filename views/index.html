@@ -9,6 +9,10 @@
     <h1>Latest Image Viewer</h1>
     <div id="imageContainer">
       <img id="latestImage" src="#" alt="Latest Image" />
+      <p>
+        Last update:
+        <span class="" id="update" style="font-weight: bold"></span>
+      </p>
     </div>
     <script>
       function updateLatestImage() {
@@ -20,7 +24,9 @@
               var response = JSON.parse(xhr.responseText);
               if (response.imageUrl) {
                 // Update the src attribute of the image element
-                document.getElementById("latestImage").src = response.imageUrl;
+                document.getElementById("latestImage").src = response.imagePath;
+                document.getElementById("update").innerHTML =
+                  response.lastUpdate;
               }
             } else {
               console.error("Error fetching latest image:", xhr.status);
@@ -32,7 +38,30 @@
       }
 
       // Update the latest image every second
-      setInterval(updateLatestImage, 1000);
+      setInterval(updateLatestImage, 500);
+      setInterval(fetchImage, 1000);
+
+      function fetchImage() {
+        // Send an AJAX request to the server to get the latest image URL
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+              var response = JSON.parse(xhr.responseText);
+              if (response.imageUrl) {
+                // Update the src attribute of the image element
+                document.getElementById("latestImage").src = response.imagePath;
+                document.getElementById("update").innerHTML =
+                  response.lastUpdate;
+              }
+            } else {
+              console.error("Error fetching latest image:", xhr.status);
+            }
+          }
+        };
+        xhr.open("POST", "/graph");
+        xhr.send();
+      }
     </script>
   </body>
 </html>
